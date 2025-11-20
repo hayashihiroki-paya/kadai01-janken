@@ -1,0 +1,212 @@
+* {
+    box-sizing: border-box;
+}
+
+/* 全体画面枠設定 */
+#wapper {
+    display: flex;
+    position: relative;
+    width: 1280px;
+    height: 720px;
+}
+
+#titleWindow {
+    position: absolute;
+    width: 1280px;
+    height: 720px;
+    z-index: 100;
+    background-color: aliceblue;
+    background-image: url(../img/jankenTop.jpeg);
+    background-size: contain;
+}
+#topImg {
+    display: flex;
+    width: 70%;
+    margin: 0 auto;
+}
+
+/* ユーザー画面とエネミー画面の共通設定 */
+#userWindowMain,
+#enemyWindowMain {
+    /* 横半分にして並べるだけ */
+    width: 50%;
+    height: 100%;
+}
+
+/* ユーザー画面大枠 */
+#userWindowMain {
+    background-color: rgb(134, 249, 255);
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+/* エネミー画面大枠 */
+#enemyWindowMain {
+    background-color: rgb(134, 249, 255);
+    position: relative;
+}
+
+/* ユーザー画面内のStatusウィンドウ */
+#userStatus {
+    width: 50%;
+    height: 50%;
+    background-color: bisque;
+    font-size: 40px;
+    background-image: url(../img/yuusya_game.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* ユーザー画面内の手札ウィンドウ */
+#userCards {
+    width: 50%;
+    height: 50%;
+    background-color: cornsilk;
+}
+
+/* 手札表示 */
+.userHandsCardGroup,
+.enemyHandsCardGroup {
+    margin: 20px;
+    padding: 10px;
+    font-size: 20px;
+    background-color: palevioletred;
+    cursor: pointer;
+}
+
+.userHandsCardGroup:hover {
+    font-size: 21px;
+}
+
+/* ユーザー、エネミー画面をまたいで中央下部にmessageウィンドウ */
+#messageWindowMain {
+    width: 50%;
+    height: 25%;
+    background-color: snow;
+    position: absolute;
+    top: 75%;
+    left: 25%;
+    /* 上に重ねてるので常に一番上に */
+    z-index: 100;
+}
+
+/* info */
+#informationWindowMain {
+    position: absolute;
+    width: 46%;
+    height: 20%;
+    top: 30%;
+    left: 27%;
+    background-color: silver;
+    z-index: 100;
+    /* デフォルト非表示 */
+    display: none;
+}
+
+#informationNextButton {
+    width: 70px;
+    height: 30px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    border: 1px solid black;
+    text-align: center;
+    cursor: pointer;
+}
+
+#informationNextButton:hover {
+    width: 72px;
+    height: 31px;
+}
+
+/* 音量ボタン */
+#volumeControllerIcon {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    bottom: 0;
+    right: 0;
+    z-index: 99;
+    font-size: 35px;
+}
+
+/* デッキ画面関係 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* デッキメイン画面 */
+#deckWindowMain {
+    width: 50%;
+    height: 50%;
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    z-index: 98;
+    background-color: plum;
+    display: none;
+}
+
+/* デッキ画面上の更新ボタン */
+#deckWindowOperation {
+    width: 10%;
+    height: 10%;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background-color: rosybrown;
+    z-index: 99;
+}
+
+/* デッキ画面関係 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+/* ユーザー画面の右側に選んだカードを出す：つけたり消したりする */
+#userChoiceCardWindow {
+    position: absolute;
+    width: 23%;
+    height: 73%;
+    top: 1%;
+    left: 26%;
+    background-color: darkcyan;
+    /* 一番上はインフォ画面なので９９で */
+    z-index: 97;
+    font-size: 40px;
+}
+
+/* 敵の選んだカード表示 */
+#enemyChoiceCardWindow {
+    position: absolute;
+    width: 23%;
+    height: 73%;
+    top: 1%;
+    left: 51%;
+    background-color: darkcyan;
+    /* 一番上はインフォ画面なので９９で */
+    z-index: 97;
+    font-size: 40px;
+}
+
+/* 敵Status： position: absolute;で無理やり位置合わせたけどいいのかどうか */
+#enemyStatus {
+    width: 50%;
+    height: 50%;
+    font-size: 40px;
+    background-color: azure;
+    position: absolute;
+    left: 50%;
+    background-image: url(../img/fantasy_game_character_slime.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* 敵手札： position: absolute;で(ry */
+#enemyCards {
+    width: 50%;
+    height: 50%;
+    background-color: cornsilk;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+#informationMessage {
+    font-size: 30px;
+}
