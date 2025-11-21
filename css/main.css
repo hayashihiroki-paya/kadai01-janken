@@ -132,6 +132,13 @@
     font-size: 35px;
 }
 
+#volumeControl {
+    position: absolute;
+    bottom: 0;
+    right: 50px;
+    z-index: 99;
+}
+
 /* デッキ画面関係 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 /* デッキメイン画面 */
 #deckWindowMain {
