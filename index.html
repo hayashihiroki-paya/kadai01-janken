@@ -26,7 +26,7 @@
         <!-- ボリュームコントローラ -->
         <div id="volumeControllerBox">
             <div id="volumeControllerIcon">🔊</div>
-            <input id="volumeControl" type="range" min="0" max="1" step="0.1" value="0.5">
+            <input id="volumeControl" type="range" min="0" max="1" step="0.01" value="0.5">
         </div>
 
         <!-- ユーザーの出したカードのウィンドウ -->
@@ -106,22 +106,23 @@
         // 🔇アイコンで再生停止処理
         $("#volumeControllerIcon").on('click', function () {
             if (bgmPlaying) {
-                bgmAuto.pause();
+                // bgmAuto.pause();
+                // bgmAuto.volume = 0;
+                allVolumeControll(0);
                 bgmPlaying = false;
                 $("#volumeControllerIcon").text("🔇");
             } else {
-                bgmAuto.play();
+                // bgmAuto.play();
+                allVolumeControll($("#volumeControl").val());
                 bgmPlaying = true;
                 $("#volumeControllerIcon").text("🔊");
             }
         });
         $("#volumeControl").on('input', function () {
-            bgmAuto.volume = $(this).val();
-            hoverSE.volume =$(this).val();
-            clickSE.volume =$(this).val();
-            damageSE01.volume =$(this).val();
-            damageSE02.volume =$(this).val();
-            recoverySE.volume =$(this).val();
+            console.log($(this).val());
+            if (bgmPlaying) {
+                allVolumeControll($(this).val());
+            }
         });
 
         // 現在のステージ数を管理（３ステージ）
@@ -147,17 +148,11 @@
         // 手札用のオブジェクトを配列で保存（５枚）
         let userHandsCard = [];
         userDeckDraw(5);
-        for (let i = 0; i < userHandsCard.length; i++) {
-            $("#userCardsList").append(`<li id="userHandsCardNumber${i}" class="userHandsCardGroup">${handsDisplay(userHandsCard[i])}</li>`);
-        }
 
         // 敵の手札情報を出す
         // 3枚引いて情報を出しておく
         let enemyHandsCard = [];
         enemyDeckDraw(3);
-        for (let i = 0; i < enemyHandsCard.length; i++) {
-            $("#enemyCardsList").append(`<li id="enemyHandsCardNumber${i}" class="enemyHandsCardGroup">${handsDisplay(enemyHandsCard[i])}</li>`);
-        }
 
         // デッキ更新ボタン押したときの処理
         // のちに手札を引いたら更新とする
@@ -173,19 +168,14 @@
 
         // 手札カーソルオンでSE
         $("#userCardsList").on("mouseenter", '.userHandsCardGroup', function () {
-            console.log("マウスオーバー");
-            hoverSE.pause();
-            hoverSE.currentTime = 0;
-            hoverSE.play();
+            // 連続再生のためいったん停止して再生位置を初期位置に
+            // 関数化しました pause->currentTime=0->play
+            playSE(hoverSE);
         });
         // 手札クリックしたときどれをクリックしたかナンバーを取得
         $("#userCardsList").on('click', '.userHandsCardGroup', function () {
-            // SE再生
-            console.log("マウスクリック");
-
-            clickSE.pause();
-            clickSE.currentTime = 0;
-            clickSE.play();
+            // // SE再生
+            playSE(clickSE);
             const num = $(this).index();
             // リストの番号のところの手札情報を削除
             const usedCard = userHandsCard.splice(num, 1);
@@ -206,15 +196,13 @@
             }
 
             // プレイヤーの選択に合わせて敵もカードを出す
+            // 手札の何番目を出すかのためのランダム番号
             const randomEnemyCard = Math.floor(Math.random() * enemyHandsCard.length);
+            // 選ばれた手札を削除して使用済みカード情報として別で保管する
             const enemyUsedCard = enemyHandsCard.splice(randomEnemyCard, 1);
 
             // 選んだカードをフィールドに出す
             playCard(enemyUsedCard, 1);
-            $("#enemyCardsList").html("");
-            for (let i = 0; i < enemyHandsCard.length; i++) {
-                $("#enemyCardsList").append(`<li id="enemyHandsCardNumber${i}" class="enemyHandsCardGroup">${handsDisplay(enemyHandsCard[i])}</li>`);
-            }
             // 使用したカード情報を捨て札配列に追加
             enemyDumpCards[enemyDumpCards.length] = enemyUsedCard[0];
 
@@ -225,7 +213,7 @@
             if (usedCard[0].hand === enemyUsedCard[0].hand) {
                 // console.log("あいこでその他処理なし");
                 $("#messageWindowMain").append(`<p>あいこ</p>`);
-                $("#userChoiceCardWindow").append(`<p>ＤＲＡＷ</p>`);
+                // $("#userChoiceCardWindow").append(`<p>ＤＲＡＷ</p>`);
             } else if ((usedCard[0].hand === 1 && enemyUsedCard[0].hand === 2)
                 || (usedCard[0].hand === 2 && enemyUsedCard[0].hand === 3)
                 || (usedCard[0].hand === 3 && enemyUsedCard[0].hand === 1)) {
@@ -233,12 +221,12 @@
                 $("#userChoiceCardWindow").append(`<p>ＷＩＮ！！</p>`);
                 if (usedCard[0].effect === 7) {
                     userHP++;
-                    recoverySE.play();
+                    playSE(recoverySE);
                     $("#messageWindowMain").append(`<p>あなたの💗を１回復</p>`);
                 }
                 if (usedCard[0].effect === 8) {
                     userHP += 2;
-                    recoverySE.play();
+                    playSE(recoverySE);
                     $("#messageWindowMain").append(`<p>あなたの💗を２回復</p>`);
                 }
                 if (enemyUsedCard[0].effect === 9) {
@@ -247,12 +235,12 @@
                 }
                 if (userAttackUp) {
                     enemyHP -= 2;
-                    damageSE02.play();
+                    playSE(damageSE02);
                     $("#messageWindowMain").append(`<p>会心の一撃！＋２ダメージ！</p>`);
                 }
                 enemyHP -= usedCard[0].attack;
                 $("#messageWindowMain").append(`<p>じゃんけんに勝った！相手の💗にダメージ！</p>`);
-                damageSE01.play();
+                playSE(damageSE01);
             } else if ((usedCard[0].hand === 2 && enemyUsedCard[0].hand === 1)
                 || (usedCard[0].hand === 3 && enemyUsedCard[0].hand === 2)
                 || (usedCard[0].hand === 1 && enemyUsedCard[0].hand === 3)) {
@@ -260,12 +248,12 @@
                 $("#userChoiceCardWindow").append(`<p>ＬＯＳＳ・・・</p>`);
                 if (enemyUsedCard[0].effect === 7) {
                     enemyHP++;
-                    recoverySE.play();
+                    playSE(recoverySE);
                     $("#messageWindowMain").append(`<p>相手は💗を１回復</p>`);
                 }
                 if (enemyUsedCard[0].effect === 8) {
                     enemyHP += 2;
-                    recoverySE.play();
+                    playSE(recoverySE);
                     $("#messageWindowMain").append(`<p>相手は💗を２回復</p>`);
                 }
                 if (usedCard[0].effect === 9) {
@@ -274,12 +262,12 @@
                 }
                 if (enemyAttackUp) {
                     userHP -= 2;
-                    damageSE02.play();
+                    playSE(damageSE02);
                     $("#messageWindowMain").append(`<p>痛恨の一撃！💗に追加で２ダメージ</p>`);
                 }
                 userHP -= enemyUsedCard[0].attack;
                 $("#messageWindowMain").append(`<p>じゃんけんに負けて💗を失った！</p>`);
-                damageSE01.play();
+                playSE(damageSE01);
             }
 
             $("#userAttackInfo").text("");
@@ -303,9 +291,6 @@
 
             // 体力が０になったかの判定
             if (userHP <= 0) {
-                $("#userChoiceCardWindow").html(``);
-                $("#enemyChoiceCardWindow").html(``);
-                $("#messageWindowMain").html(``);
                 // informationWindowMainを表示
                 $("#informationWindowMain").css("display", "block");
                 // テキストを表示
@@ -318,9 +303,6 @@
                 return false;
             }
             if (enemyHP <= 0) {
-                $("#userChoiceCardWindow").html(``);
-                $("#enemyChoiceCardWindow").html(``);
-                $("#messageWindowMain").html(``);
                 $("#informationWindowMain").css("display", "block");
                 $("#informationMessage").text("相手の体力がなくなりました！勝ち！");
                 $(".userHandsCardGroup").prop("disabled", true);
@@ -331,27 +313,24 @@
 
             // 勝敗判定後に山札からカードを引く
             userDeckDraw(5);
-            $("#userCardsList").html("");
-            for (let i = 0; i < userHandsCard.length; i++) {
-                $("#userCardsList").append(`<li id="userHandsCardNumber${i}" class="userHandsCardGroup">${handsDisplay(userHandsCard[i])}</li>`);
-            }
             enemyDeckDraw(3 + stageNumber);
-            $("#enemyCardsList").html("");
-            for (let i = 0; i < enemyHandsCard.length; i++) {
-                $("#enemyCardsList").append(`<li id="enemyHandsCardNumber${i}" class="enemyHandsCardGroup">${handsDisplay(enemyHandsCard[i])}</li>`);
-            }
         });
 
         // ネクストボタンの挙動を管理すフラグ
         let nextButtonFlag = 0;
         $("#informationNextButton").on("mouseenter", function () {
             console.log("マウスオーバー");
-            hoverSE.play();
+            playSE(hoverSE);
         });
 
         $("#informationNextButton").on("click", function () {
             console.log("マウスクリック");
-            clickSE.play();
+            playSE(clickSE);
+
+            // ボタン押したときにメッセージやプレイカード情報を削除
+            $("#userChoiceCardWindow").html(``);
+            $("#enemyChoiceCardWindow").html(``);
+            $("#messageWindowMain").html(``);
 
             // 1:勝利しているとき
             if (nextButtonFlag === 1) {
@@ -373,10 +352,6 @@
                 enemyDeck = createDeck(10);
                 // デッキからカードを引いて表示
                 enemyDeckDraw(3 + stageNumber);
-                $("#enemyCardsList").html("");
-                for (let i = 0; i < enemyHandsCard.length; i++) {
-                    $("#enemyCardsList").append(`<li id="enemyHandsCardNumber${i}" class="enemyHandsCardGroup">${handsDisplay(enemyHandsCard[i])}</li>`);
-                }
                 if (stageNumber === 1) {
                     $("#enemyName").text("ゴブリン");
                     $("#enemyStatus").css('background-image', 'url(./img/fantasy_goblin.png)');
@@ -394,11 +369,6 @@
                 userDeck = createDeck(20);
                 // デッキからカードを引いて表示
                 userDeckDraw(5);
-                $("#userCardsList").html("");
-                for (let i = 0; i < userHandsCard.length; i++) {
-                    // li要素を改めて掻き込む
-                    $("#userCardsList").append(`<li id="userHandsCardNumber${i}" class="userHandsCardGroup">${handsDisplay(userHandsCard[i])}</li>`);
-                }
                 enemyHP = 10 + (stageNumber * 5);
                 userHP = 15;
                 $("#enemyHP").text("💗:" + enemyHP);
@@ -416,11 +386,6 @@
                 userDeck = createDeck(20);
                 // デッキからカードを引いて表示
                 userDeckDraw(5);
-                $("#userCardsList").html("");
-                for (let i = 0; i < userHandsCard.length; i++) {
-                    // li要素を改めて掻き込む
-                    $("#userCardsList").append(`<li id="userHandsCardNumber${i}" class="userHandsCardGroup">${handsDisplay(userHandsCard[i])}</li>`);
-                }
                 // デッキ、手札、捨て札全削除
                 enemyDeck.splice(0, enemyDeck.length);
                 enemyHandsCard.splice(0, enemyHandsCard.length);
@@ -429,10 +394,6 @@
                 enemyDeck = createDeck(10);
                 // デッキからカードを引いて表示
                 enemyDeckDraw(3 + stageNumber);
-                $("#enemyCardsList").html("");
-                for (let i = 0; i < enemyHandsCard.length; i++) {
-                    $("#enemyCardsList").append(`<li id="enemyHandsCardNumber${i}" class="enemyHandsCardGroup">${handsDisplay(enemyHandsCard[i])}</li>`);
-                }
                 enemyHP = 10 + (stageNumber * 5);
                 userHP = 15;
                 $("#enemyHP").text("💗:" + enemyHP);
@@ -521,6 +482,11 @@
                 // console.log("山札残り枚数" + userDeck.length);
             }
             console.log("ユーザーデッキ残り枚数：" + userDeck.length);
+            // ドロー後の表示
+            $("#userCardsList").html("");
+            for (let i = 0; i < userHandsCard.length; i++) {
+                $("#userCardsList").append(`<li id="userHandsCardNumber${i}" class="userHandsCardGroup">${handsDisplay(userHandsCard[i])}</li>`);
+            }
         }
 
         function enemyDeckDraw(num) { // 
@@ -551,6 +517,10 @@
                 // console.log("山札残り枚数" + enemyDeck.length);
             }
             console.log("敵デッキ残り枚数：" + enemyDeck.length);
+            $("#enemyCardsList").html("");
+            for (let i = 0; i < enemyHandsCard.length; i++) {
+                $("#enemyCardsList").append(`<li id="enemyHandsCardNumber${i}" class="enemyHandsCardGroup">${handsDisplay(enemyHandsCard[i])}</li>`);
+            }
         }
 
         // カードの情報をコンソールに表示
@@ -609,6 +579,20 @@
             );
         }
 
+        function playSE(aodioItem) {
+            aodioItem.pause();
+            aodioItem.currentTime = 0;
+            aodioItem.play();
+        }
+
+        function allVolumeControll(changeVolume) {
+            bgmAuto.volume = changeVolume;
+            hoverSE.volume = changeVolume;
+            clickSE.volume = changeVolume;
+            damageSE01.volume = changeVolume;
+            damageSE02.volume = changeVolume;
+            recoverySE.volume = changeVolume;
+        }
 
         // 以下、余裕があったら関数化したかったもの(ソースコードの可読性が上がるくらいで関数にする必要ないのか？)
         // 同じ、または似通った処理を複数書いているところ、イベントセレクタが長いところとか修正できたかも
