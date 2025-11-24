@@ -8,21 +8,55 @@
     position: relative;
     width: 1280px;
     height: 720px;
+    z-index: 1;
 }
 
 #titleWindow {
     position: absolute;
     width: 1280px;
     height: 720px;
-    z-index: 100;
+    z-index: 99;
     background-color: aliceblue;
     background-image: url(../img/jankenTop.jpeg);
     background-size: contain;
 }
+
 #topImg {
     display: flex;
     width: 70%;
     margin: 0 auto;
+}
+
+/* 背景画像 */
+#stageBackGroundWindow {
+    position: absolute;
+    width: 50%;
+    height: 75%;
+    top: 0;
+    left: 25%;
+    background-color: blue;
+    z-index: 98;
+}
+
+#stageBG1,
+#stageBG2 {
+    position: absolute;
+    left: 5%;
+    top: 5%;
+    width: 90%;
+    height: 90%;
+    display: none;
+    transition-duration: 2s;
+}
+
+#stageImg1,
+#stageImg2 {
+    width: 100%;
+    height: 100%;
+}
+
+.stageChange {
+    transform: scale(1.11, 1.11);
 }
 
 /* ユーザー画面とエネミー画面の共通設定 */
@@ -85,10 +119,22 @@
     width: 50%;
     height: 25%;
     background-color: snow;
+    background-image: url(../img/message_window.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
     position: absolute;
     top: 75%;
     left: 25%;
     /* 上に重ねてるので常に一番上に */
+    z-index: 99;
+}
+
+#messageWindowText {
+    width: 75%;
+    height: 80%;
+    margin: 0 auto;
+    margin-top: 20px;
+    /* background-color: brown; */
     z-index: 100;
 }
 
@@ -189,6 +235,12 @@
     /* 一番上はインフォ画面なので９９で */
     z-index: 97;
     font-size: 40px;
+}
+
+/* 敵味方のプレイしたカードの共通項目 主に表示非表示のため */
+.playCards {
+    /* デフォルト非表示 */
+    display: none;
 }
 
 /* 敵Status： position: absolute;で無理やり位置合わせたけどいいのかどうか */
